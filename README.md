@@ -29,6 +29,71 @@ CocoaLumberjack 最早是由Robbie Hanson 开发的日志库，是Mac 和iOS上�
 
 用插件Alcatraz 进行安装，https://github.com/alcatraz/Alcatraz 打开并重启Load Bundle  点击 Window->Pakage Manager 如果列表里没有可直接搜索XcodeColors，直接点击INSTALL ，自动安装，安装好了之后，重启Xcode，再次打开Xcode 的时候，Load Bundle一下,一般情况下，到了这一步就装好了，测试也不会有太大问题，终端能正常打印多种颜色的字体，如果还不能，请把XcodeColors移除，再重新安装，问题得到了解决（我的问题就是这么解决了），在使用Lunmerjack进行测试的时候用也能正常打印不同等级的日志输出。并且Alcatraz里面含有很多的插件，丰富多彩，Alcatraz这个插件挺好用，推荐使用。
 
+#Andorid-Log日志第三方库选择的说明
 
+本次Log库的选择主要通过以下细节来确定最终选择使用的Log库结果，首先根据github的star来进行初步筛选，其次根据更新速度，评价，维护人数以及维护公司，README来确定，当然最终是根据具体的使用情况和兼容性来确定，目前选择的结果为github：orhanobut/logger，之前star排名第二，目前观察已经超过第一，排名第一。简单解释不选择JakeWharton/hugo的原因，从开发人员来看JakeWharton相对于前者有名。但从使用结果，README,引入方式，Log支持版本来看，都略差于orhanobut/logger 。所以最终选择orhanobut/logger。
+
+
+下面简单介绍一下github：orhanobut/logger的使用方法
+
+##1、支持环境
+经过测试确认，目前发现此Log日志无SDK与JDK要求，Android可完美运行，eclipse只要能支持Maven即可。 
+##2、引用方法：
+这里主要以Android Studio为例。
+###第一步：引入Maven的URL
+需要在我们项目的build.gradle中引用：具体代码如下：
+	repositories {
+    		jcenter()
+    	maven {
+        	url "https://jitpack.io"
+    	}
+}
+###第二步：在我们APP下的bulid.gradle中需要进行远程依赖：具体代码如下：
+	dependencies {
+	
+	    compile 'com.github.orhanobut:logger:1.12'
+	}
+配置以上两步后，重新加载gradle即可引入Log日志。
+
+###此Log日志与传统Log日志的优势：
+	1、	相对于传统Log日志输出更多样化，更加美观。
+	2、	可打印当前Log日志输出的多层级方法。
+	3、	打印代码更简洁，如：Logger.i(“value”),而传统的每一个Log都需要对应的一个key,如：Log.i(“key”,”value”).
+	4、	过滤层级可很好控制。
+	5、	可区分正式版本与测试版本，可通过Logger.logLevel(LogLevel.NONE) ; 与 Logger.logLevel(LogLevel.FILL) ;来控制，NONE为正式版本，不会输出任何一个日志，FILL为测试版本，及会输出Log日志。
+	6、	源码可查看，也可自定义输出格式。
+	7、	显示格式很灵活，可根据项目需求来输出内容。
+	8、	对json.xml等有特殊、美观的输出格式，可很方便的进行过滤。
+	9、	有很好的维护性。
+	10、	对严重级的错误可用标红处理，更加显眼。
+
+
+###使用方法介绍：
+	 Logger
+                .init(MY_TAG)                 // default PRETTYLOGGER or use just init()
+                .methodCount(0)                 // default 2
+                .hideThreadInfo()               // default shown
+                .logLevel(LogLevel.NONE) ;      // default LogLevel.FULL
+                //.methodOffset(0)               // default 0
+                //.logTool(new AndroidLogTool()); // custom log tool, optional
+####初始化：日志打印初始化，注意LogLevel.NONE表示为版本发布
+Log日志提供的方法如下：
+
+	Log.i();    //打印info信息
+	Log.d();   // 打印debug信息 
+	Log.e();   // 打印Error 信息
+	Log.v();   //打印Verbose信息
+	Log.w();  	//打印warn信息
+	
+	Log.t(“”);     //添加标记
+	Log.t(0);     // 打印方法数
+	Log.wtf();   //输出wtf格式的信息
+	Log.json();  //输出json格式的信息 
+	Log.xml();  //输出xml个数的信息
+
+
+##注意事项：
+###1、	使用前必须进行初始化，否则会出现空指针，导致程序崩溃。
+###2、	发布正式版本时。一定要把LOG版本设为正式版本调用如下代码：Logger.logLevel(LogLevel.NONE);
 
 
