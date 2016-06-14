@@ -1,5 +1,49 @@
 # platform
 
+## iOS 未使用资源的检测工具    
+经多方调查研究，在检测Xcode 工程中未使用的代码的检测暂时还没有结果，对未使用资源的检测，经多方比较得出目前好的工具列出如下：（[参考博客](http://blog.lessfun.com/blog/2015/09/02/find-unused-resources-in-xcode-project/)）    
+
+#### 方案1、脚本（这里展示了shell 的）    
+	#!/bin/sh    
+	PROJ=`find . -name '*.xib' -o -name '*.[mh]'`    
+	for png in `find . -name '*.png'`    
+	do 
+	    name=`basename $png`    
+	    if ! grep -qhs "$name" "$PROJ"; then    
+	    	echo "$png is not referenced"    
+	    fi    
+	done    
+这种方法的缺点是：不够智能，不够通用，速度太慢，结果不正确。    
+
+#### 方案2、脚本界面化Unused    
+Unused对脚本的调用做了封装，通过界面可以配置一定的信息，然后比较清晰的输入结果。    
+缺点：实际上，Unused 的内部还是调用了方案1的脚本，所以方案1的缺点也就是方案2的缺点。    
+
+#### 方案3、LSUnusedResources    
+LSUnusedResources 有以下的优点：    
+##### 1、LSUnusedResources提高了匹配速度    
+LSUnusedResources 很大程度上受Unused的影响，比如界面、交互，以及部分代码。但是，本工具在核心代码上做了优化，使其在搜索速度、结果的正确上有很大的提高    
+
+ 核心步骤简述如下：    
+ 查找：选定目录下的所有资源文件。这一步与上述方案1区别不大，都是调用find命令进行查找指定后缀的文件。    
+ 匹配：与上述方案不同，这里不是对每个资源文件名都做一次全文匹配，因为加入项目的资源太多，这里会导致性能快速下降。这里只是针对源码、xib、storyboard和plist等文件，先全文搜索其中可能是引用了资源的字符串，然后用资源名和字符串做匹配    
+
+##### 2、LSUnusedResources优化了匹配结果    
+Unused 会把大量实际上有使用的资源，当做未使用的资源输出。LSUnusedResources 则不会出现这样的问题，并且使得结果更加优化。    
+例如：添加了下面的资源：    
+     icon_tag_0.png    
+     icon_tag_1.png    
+     icon_tag_2.png    
+     icon_tag_3.png    
+     icon_tag_4.png    
+     
+然后用字符串拼接在代码中引用    
+
+     NSInteger index = random() % 4;    
+     UIImage *img = [UIImage imageNamed:[NSString stringWithFormat:@"icon_tag_%d", index]];    
+     
+icon_tag_x.png 是不应该被当做未使用的资源的，只是以一种比较隐晦的方式间接引用了，所以不应该出现在结果列表中    
+
 
 ##  iOS 日志打印库
 ###   关于选择CocoaLumberjack第三方库作为iOS项目中日志打印工具的说明    
